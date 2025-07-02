@@ -2,7 +2,7 @@ Story,Task,Estimate min (hr),Estimate max (hr),Actual,Comment
 Core,Project setup & scaffolding,1,1,.5,
 Core,Notes CRUD (UI + state),3,4,1,
 Core,Tag system & filtering,2,2,1,
-Core,AI feature,2,3,,
+Core,AI feature,2,3,1,
 Core,Analytics dashboard,2,2,,
 Core,Responsive design & polish,2,2,,
 Core,Error/empty state handling,1,1,,
