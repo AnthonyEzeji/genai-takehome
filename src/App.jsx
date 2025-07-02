@@ -1,12 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
-import './App.css'
+import './styles/App.css'
 import TestSupabaseConnection from './TestSupabaseConnection'
-import { NotesProvider } from './NotesContext'
-import NoteForm from './NoteForm'
-import TagFilter from './TagFilter'
-import NotesList from './NotesList'
-import AnalyticsDashboard from './AnalyticsDashboard'
+import { NotesProvider } from './contexts/NotesContext'
+import NoteForm from './components/notes/NoteForm'
+import TagFilter from './components/notes/TagFilter'
+import NotesList from './components/notes/NotesList'
+import AnalyticsDashboard from './components/analytics/AnalyticsDashboard'
 import {
   BrowserRouter as Router,
   Routes,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNotes } from './NotesContext';
-import { summarizeNote } from './ai';
+import { useNotes } from '../../contexts/NotesContext';
+import { summarizeNote } from '../../services/ai';
 
 export default function NotesList({ selectedTag, onEdit }) {
   const { notes, loading, error, deleteNote } = useNotes();

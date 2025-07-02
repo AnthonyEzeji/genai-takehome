@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { summarizeNote, generateNoteFromShorthand, autoTitleNote } from './ai';
+import { summarizeNote, generateNoteFromShorthand, autoTitleNote } from '../services/ai';
 
 // Mock fetch
 beforeEach(() => {

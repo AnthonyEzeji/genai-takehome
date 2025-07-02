@@ -1,11 +1,11 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import NoteForm from './NoteForm';
-import { NotesProvider } from './NotesContext';
+import NoteForm from '../components/notes/NoteForm';
+import { NotesProvider } from '../contexts/NotesContext';
 
 // Mock AI utils
-vi.mock('./ai', () => ({
+vi.mock('../services/ai', () => ({
   autoTitleNote: vi.fn().mockResolvedValue('AI Title'),
   generateNoteFromShorthand: vi.fn().mockResolvedValue('AI Content'),
 }));

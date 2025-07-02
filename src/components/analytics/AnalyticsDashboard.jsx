@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNotes } from './NotesContext';
-import { supabase } from './supabaseClient';
+import { useNotes } from '../../contexts/NotesContext';
+import { supabase } from '../../services/supabaseClient';
 import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

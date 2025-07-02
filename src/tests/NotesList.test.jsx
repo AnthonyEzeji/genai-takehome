@@ -1,10 +1,10 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import NotesList from './NotesList';
-import { NotesContext } from './NotesContext';
+import NotesList from '../components/notes/NotesList';
+import { NotesContext } from '../contexts/NotesContext';
 
-vi.mock('./ai', () => ({
+vi.mock('../services/ai', () => ({
   summarizeNote: vi.fn().mockResolvedValue('AI Summary'),
 }));
 

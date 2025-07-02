@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useNotes } from './NotesContext';
+import { useNotes } from '../../contexts/NotesContext';
 
 export default function TagFilter({ selectedTag, setSelectedTag }) {
   const { notes } = useNotes();

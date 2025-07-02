@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNotes } from './NotesContext';
-import { autoTitleNote, generateNoteFromShorthand } from './ai';
+import { useNotes } from '../../contexts/NotesContext';
+import { autoTitleNote, generateNoteFromShorthand } from '../../services/ai';
 
 function TagInput({ tags, setTags }) {
   const [input, setInput] = useState('');
