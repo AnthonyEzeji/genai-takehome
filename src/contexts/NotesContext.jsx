@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { storeNoteWithEmbedding, updateNoteEmbedding } from '../services/embeddings';
 
 const NotesContext = createContext();
 
@@ -107,9 +108,18 @@ export function NotesProvider({ children }) {
       ...note,
       tags: Array.isArray(note.tags) ? note.tags : []
     };
-    const { data, error } = await supabase.from('notes').insert([noteWithTags]).select();
-    if (error) throw new Error(error.message);
-    setNotes((prev) => [data[0], ...prev]);
+    
+    try {
+      // Store note with embedding
+      const newNote = await storeNoteWithEmbedding(noteWithTags);
+      setNotes((prev) => [newNote, ...prev]);
+    } catch (error) {
+      // Fallback to regular storage if embedding fails
+      console.warn('Embedding failed, storing note without embedding:', error);
+      const { data, error: supabaseError } = await supabase.from('notes').insert([noteWithTags]).select();
+      if (supabaseError) throw new Error(supabaseError.message);
+      setNotes((prev) => [data[0], ...prev]);
+    }
   }
 
   // Update note
@@ -119,9 +129,20 @@ export function NotesProvider({ children }) {
       ...updated,
       tags: Array.isArray(updated.tags) ? updated.tags : []
     };
-    const { data, error } = await supabase.from('notes').update(updatedWithTags).eq('id', id).select();
-    if (error) throw new Error(error.message);
-    setNotes((prev) => prev.map((n) => (n.id === id ? data[0] : n)));
+    
+    try {
+      // Update note and its embedding
+      await updateNoteEmbedding(id, updatedWithTags.title, updatedWithTags.content);
+      const { data, error } = await supabase.from('notes').update(updatedWithTags).eq('id', id).select();
+      if (error) throw new Error(error.message);
+      setNotes((prev) => prev.map((n) => (n.id === id ? data[0] : n)));
+    } catch (error) {
+      // Fallback to regular update if embedding fails
+      console.warn('Embedding update failed, updating note without embedding:', error);
+      const { data, error: supabaseError } = await supabase.from('notes').update(updatedWithTags).eq('id', id).select();
+      if (supabaseError) throw new Error(supabaseError.message);
+      setNotes((prev) => prev.map((n) => (n.id === id ? data[0] : n)));
+    }
   }
 
   // Delete note

@@ -4,7 +4,7 @@ A modern, AI-augmented note-taking application built with React, Vite, and Supab
 
 ## 🚀 Live Demo
 
-**[Live Application URL]** - *Add your deployment URL here*
+**[https://genai-takehome-ize6.vercel.app/](https://genai-takehome-ize6.vercel.app/)** - Live application deployed on Vercel
 
 ## ✨ Features
 
@@ -14,6 +14,7 @@ A modern, AI-augmented note-taking application built with React, Vite, and Supab
   - Auto-generate titles from note content
   - Summarize long notes with AI
   - Generate full notes from shorthand/bullet points
+- **🔍 Vector-Based Semantic Search**: Find related notes using AI embeddings and similarity matching
 - **📊 Analytics Dashboard**: Real-time insights into note creation, AI usage, and tag popularity
 - **🏷️ Tag System**: Organize notes with custom tags and powerful filtering
 - **📱 Responsive Design**: Optimized for desktop and mobile devices
@@ -184,7 +185,14 @@ This project is licensed under the MIT License.
 
 ## 🎥 Demo Video
 
-**[Loom/Screen Share Video URL]** - *Add your demo video link here*
+**[Demo Video URL]** - *Add your Loom/screen share video link here*
+
+**Note**: Demo video should showcase:
+- End-user product demo (create/edit/delete notes)
+- AI features in action (auto-title, summarize, generate)
+- Analytics dashboard functionality
+- Architecture walkthrough
+- Error handling and edge cases
 
 The demo video showcases:
 - End-user product demo
@@ -196,8 +204,8 @@ The demo video showcases:
 ## 📋 Submission Checklist
 
 - ✅ Public GitHub repository with meaningful commit history
-- ✅ Live deployment URL
-- ✅ Demo video with product walkthrough
+- ✅ [Live deployment URL](https://genai-takehome-ize6.vercel.app/)
+- ⏳ Demo video with product walkthrough
 - ✅ Comprehensive README with setup instructions
 - ✅ Architecture documentation
 - ✅ Test coverage and quality assurance
@@ -216,8 +224,8 @@ The demo video showcases:
 - Implement real-time collaboration
 - Add markdown support
 - Implement keyboard shortcuts
-- Add vector-based note search
 - Set up CI/CD with Lighthouse monitoring
+- Add more advanced AI features (auto-tagging, content suggestions)
 
 ## 📞 Contact
 
