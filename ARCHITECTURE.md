@@ -20,18 +20,31 @@ Lucid-Notes is a React-based, AI-powered note-taking application built with mode
 
 ```
 src/
-├── App.jsx                 # Main application component with routing
-├── main.jsx               # Application entry point
-├── index.css              # Global styles and Tailwind imports
-├── App.css                # Custom component styles and animations
-├── supabaseClient.js      # Supabase configuration and client
-├── ai.js                  # AI service functions and error handling
-├── NotesContext.jsx       # Global state management for notes
-├── NoteForm.jsx           # Note creation and editing form
-├── NotesList.jsx          # Display and management of notes
-├── TagFilter.jsx          # Tag-based filtering and search
-├── AnalyticsDashboard.jsx # Analytics visualization and metrics
-└── assets/                # Static assets
+├── App.jsx                    # Main application component with routing
+├── main.jsx                   # Application entry point
+├── assets/                    # Static assets (images, icons)
+├── components/                # Reusable UI components
+│   ├── analytics/             # Analytics-related components
+│   │   └── AnalyticsDashboard.jsx
+│   ├── notes/                 # Note-related components
+│   │   ├── NoteForm.jsx       # Note creation and editing form
+│   │   ├── NotesList.jsx      # Display and management of notes
+│   │   └── TagFilter.jsx      # Tag-based filtering and search
+│   └── ui/                    # Generic UI components (future use)
+├── contexts/                  # React Context providers
+│   └── NotesContext.jsx       # Global state management for notes
+├── services/                  # External service integrations
+│   ├── ai.js                  # AI service functions and error handling
+│   └── supabaseClient.js      # Supabase configuration and client
+├── styles/                    # Styling files
+│   ├── App.css                # Custom component styles and animations
+│   └── index.css              # Global styles and Tailwind imports
+├── tests/                     # Test files
+│   ├── App.test.jsx           # Main app tests
+│   ├── NoteForm.test.jsx      # Form component tests
+│   ├── NotesList.test.jsx     # List component tests
+│   └── ai.test.js             # AI service tests
+└── utils/                     # Utility functions (future use)
 ```
 
 ### Component Hierarchy
@@ -40,16 +53,61 @@ src/
 App
 ├── Navigation
 ├── Notes Page
-│   ├── NoteForm
-│   ├── TagFilter
-│   └── NotesList
+│   ├── components/notes/NoteForm
+│   ├── components/notes/TagFilter
+│   └── components/notes/NotesList
 │       └── NoteCard (individual notes)
 └── Analytics Page
-    └── AnalyticsDashboard
+    └── components/analytics/AnalyticsDashboard
         ├── NotesCreatedChart
         ├── AIUsageChart
         └── TagPopularityChart
 ```
+
+### Module Organization
+
+The application follows a modular architecture with clear separation of concerns:
+
+- **components/**: Reusable UI components organized by feature
+  - `analytics/`: Analytics and visualization components
+  - `notes/`: Note management and display components
+  - `ui/`: Generic UI components for future use
+
+- **contexts/**: React Context providers for global state management
+
+- **services/**: External service integrations and API calls
+
+- **styles/**: CSS and styling files
+
+- **tests/**: Test files mirroring the component structure
+
+- **utils/**: Utility functions and helpers
+
+### Benefits of Modular Structure
+
+1. **Scalability**: Easy to add new features without cluttering the root directory
+2. **Maintainability**: Clear organization makes it easier to find and modify code
+3. **Reusability**: Components are organized by feature, making them easier to reuse
+4. **Testing**: Test files are co-located with their corresponding components
+5. **Team Collaboration**: Different team members can work on different modules without conflicts
+6. **Code Splitting**: Natural boundaries for future code splitting and lazy loading
+7. **Import Management**: Clear import paths that reflect the application structure
+
+### Import Path Strategy
+
+The modular structure enables clean, semantic import paths:
+
+```javascript
+// Before (flat structure)
+import { useNotes } from './NotesContext';
+import { autoTitleNote } from './ai';
+
+// After (modular structure)
+import { useNotes } from '../../contexts/NotesContext';
+import { autoTitleNote } from '../../services/ai';
+```
+
+This approach makes dependencies explicit and helps developers understand the relationship between modules.
 
 ### State Management
 
