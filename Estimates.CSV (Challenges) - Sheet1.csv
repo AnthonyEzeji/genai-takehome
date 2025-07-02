@@ -1,11 +1,14 @@
 Story,Task,Estimate min (hr),Estimate max (hr),Actual,Comment
-Core,Project setup & scaffolding,.5,1,.5,
-Core,Notes CRUD (UI + state),1,4,1,
-Core,Tag system & filtering,1,2,1,
-Core,AI feature,1,3,1,
-Core,Analytics dashboard,.5,2,.5,
-Core,Responsive design & polish,.5,2,.5,
-Core,Error/empty state handling,.5,1,.5,
-Core,Mock backend & seeding,1,1,1,
-Core,Accessibility & perf tuning,1,1,1,
-Core,Docs,1,1,1,
+Core,Project setup & scaffolding,.5,1,.5,Completed
+Core,Notes CRUD (UI + state),1,4,2,Completed with full CRUD operations
+Core,Tag system & filtering,1,2,1.5,Completed with tag management
+Core,AI features (3 features),1,3,2,Completed: summarize, auto-title, generate from shorthand
+Core,Analytics dashboard,.5,2,1.5,Completed with charts and real-time data
+Core,Responsive design & polish,.5,2,2,Completed with smooth animations and micro-interactions
+Core,Error/empty state handling,.5,1,1,Completed with graceful error handling
+Core,Supabase backend & seeding,1,1,1,Completed with demo data
+Core,Accessibility & perf tuning,1,1,1.5,Completed with Lighthouse optimizations
+Core,Modular architecture & testing,1,2,2,Completed with folder structure and tests
+Core,Docs & architecture,1,1,1,Completed with comprehensive documentation
+Stretch,Unit tests,1,2,1,Completed with test coverage
+Stretch,Performance optimizations,.5,1,1,Completed with animations and optimizations
