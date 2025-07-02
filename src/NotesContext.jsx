@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+import { useAnalytics } from './AnalyticsContext';
 
 const NotesContext = createContext();
 
@@ -7,6 +8,7 @@ export function NotesProvider({ children }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { logNoteCreated } = useAnalytics ? useAnalytics() : { logNoteCreated: () => {} };
 
   // Fetch notes from Supabase
   useEffect(() => {
@@ -25,6 +27,7 @@ export function NotesProvider({ children }) {
     const { data, error } = await supabase.from('notes').insert([note]).select();
     if (error) throw new Error(error.message);
     setNotes((prev) => [data[0], ...prev]);
+    if (logNoteCreated) logNoteCreated(new Date().toISOString(), note.tags);
   }
 
   // Update note

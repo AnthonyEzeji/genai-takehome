@@ -1,20 +1,30 @@
+import React from 'react'
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import TestSupabaseConnection from './TestSupabaseConnection'
 import { NotesProvider } from './NotesContext'
-import NotesList from './NotesList'
 import NoteForm from './NoteForm'
 import TagFilter from './TagFilter'
+import NotesList from './NotesList'
+import { AnalyticsProvider } from './AnalyticsContext'
+import AnalyticsDashboard from './AnalyticsDashboard'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useLocation
+} from 'react-router-dom'
 
-function App() {
+function NotesPage() {
   const [count, setCount] = useState(0)
   const [selectedTag, setSelectedTag] = useState(null)
   const [editingNote, setEditingNote] = useState(null)
-
   return (
-    <NotesProvider>
+    <div>
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -39,8 +49,34 @@ function App() {
       <NoteForm editingNote={editingNote} onSave={() => setEditingNote(null)} />
       <TagFilter selectedTag={selectedTag} setSelectedTag={setSelectedTag} />
       <NotesList selectedTag={selectedTag} onEdit={setEditingNote} />
-      {/* Notes List UI will go here */}
-    </NotesProvider>
+    </div>
+  )
+}
+
+function NavBar() {
+  const location = useLocation();
+  return (
+    <nav className="flex gap-4 p-4 bg-gray-100 border-b mb-4">
+      <Link to="/notes" className={location.pathname === '/notes' ? 'font-bold text-blue-600' : ''}>Notes</Link>
+      <Link to="/analytics" className={location.pathname === '/analytics' ? 'font-bold text-blue-600' : ''}>Analytics</Link>
+    </nav>
+  )
+}
+
+function App() {
+  return (
+    <AnalyticsProvider>
+      <NotesProvider>
+        <Router>
+          <NavBar />
+          <Routes>
+            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="*" element={<Navigate to="/notes" replace />} />
+          </Routes>
+        </Router>
+      </NotesProvider>
+    </AnalyticsProvider>
   )
 }
 
