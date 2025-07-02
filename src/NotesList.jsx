@@ -7,72 +7,141 @@ export default function NotesList({ selectedTag, onEdit }) {
   const [summaries, setSummaries] = useState({});
   const [loadingSummary, setLoadingSummary] = useState(null);
   const [summaryError, setSummaryError] = useState(null);
+  const [retryCount, setRetryCount] = useState({});
 
   const filteredNotes = selectedTag
     ? notes.filter(note => (note.tags || []).includes(selectedTag))
     : notes;
 
-  async function handleSummarize(note) {
+  async function handleSummarize(note, retryAttempt = 0) {
     setLoadingSummary(note.id);
     setSummaryError(null);
     try {
       const summary = await summarizeNote(note.content);
       setSummaries(s => ({ ...s, [note.id]: summary }));
+      setRetryCount(prev => ({ ...prev, [note.id]: 0 }));
     } catch (err) {
       setSummaryError('AI error: ' + err.message);
+      if (retryAttempt < 2) {
+        setTimeout(() => {
+          handleSummarize(note, retryAttempt + 1);
+        }, 1000 * (retryAttempt + 1));
+      }
     } finally {
       setLoadingSummary(null);
     }
   }
 
-  if (loading) return <div className="p-4">Loading notes...</div>;
-  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
-  if (!filteredNotes.length) return <div className="p-4">No notes yet.</div>;
+  async function handleDelete(noteId) {
+    if (window.confirm('Are you sure you want to delete this note?')) {
+      try {
+        await deleteNote(noteId);
+      } catch (err) {
+        console.error('Failed to delete note:', err);
+        alert('Failed to delete note. Please try again.');
+      }
+    }
+  }
+
+  if (loading) return (
+    <div className="text-center py-8" role="status" aria-live="polite">
+      <div className="loading mx-auto" aria-label="Loading notes"></div>
+      <p className="text-gray-600 mt-2">Loading notes...</p>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="text-red-600 p-4 bg-red-50 rounded border border-red-200" role="alert">
+      <strong>Error loading notes:</strong> {error}
+      <button 
+        onClick={() => window.location.reload()} 
+        className="btn btn-secondary ml-2"
+      >
+        Retry
+      </button>
+    </div>
+  );
+  
+  if (!filteredNotes.length) return (
+    <div className="text-center py-8 text-gray-500" role="status">
+      <div className="text-4xl mb-2" aria-hidden="true">📝</div>
+      <p>No notes yet.</p>
+      <p className="text-sm">Create your first note above!</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-4 mt-4">
-      {filteredNotes.map(note => (
-        <div key={note.id} className="bg-white rounded shadow p-4 flex flex-col gap-2">
-          <div className="font-bold text-lg">{note.title}</div>
-          <div className="text-gray-700 whitespace-pre-line">{note.content}</div>
+    <section className="space-y-4 mt-4" aria-label="Notes list">
+      <h2 className="sr-only">Notes</h2>
+      {filteredNotes.map((note, index) => (
+        <article 
+          key={note.id} 
+          className="note-card fade-in-up"
+          style={{ animationDelay: `${index * 0.1}s` }}
+          aria-labelledby={`note-title-${note.id}`}
+        >
+          <h3 id={`note-title-${note.id}`} className="note-title">{note.title}</h3>
+          <div className="note-content">{note.content}</div>
           {note.tags && note.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2" role="list" aria-label="Note tags">
               {note.tags.map(tag => (
-                <span key={tag} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{tag}</span>
+                <span key={tag} className="tag" role="listitem">
+                  {tag}
+                </span>
               ))}
             </div>
           )}
-          <div className="flex gap-2 self-end mt-2">
+          <div className="note-actions">
             <button
-              className="text-xs text-blue-500 hover:underline"
+              className="edit-btn"
               onClick={() => onEdit && onEdit(note)}
+              aria-label={`Edit note: ${note.title}`}
             >
               Edit
             </button>
             <button
-              className="text-xs text-red-500 hover:underline"
-              onClick={() => deleteNote(note.id)}
+              className="delete-btn"
+              onClick={() => handleDelete(note.id)}
+              aria-label={`Delete note: ${note.title}`}
             >
               Delete
             </button>
             <button
-              className="text-xs text-green-600 hover:underline"
+              className="summarize-btn"
               onClick={() => handleSummarize(note)}
               disabled={loadingSummary === note.id}
+              aria-label={`Summarize note: ${note.title}`}
             >
-              {loadingSummary === note.id ? 'Summarizing...' : 'Summarize'}
+              {loadingSummary === note.id ? (
+                <span className="loading" aria-label="Generating summary..."></span>
+              ) : (
+                'Summarize'
+              )}
             </button>
           </div>
           {summaryError && loadingSummary === note.id && (
-            <div className="text-red-600 text-xs mt-1">{summaryError}</div>
+            <div className="text-red-600 text-xs mt-1 p-2 bg-red-50 rounded border border-red-200" role="alert">
+              <strong>AI Error:</strong> {summaryError}
+              {(retryCount[note.id] || 0) < 2 && (
+                <button 
+                  onClick={() => {
+                    setRetryCount(prev => ({ ...prev, [note.id]: (prev[note.id] || 0) + 1 }));
+                    handleSummarize(note);
+                  }}
+                  className="btn btn-secondary ml-2 text-xs"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
           )}
           {summaries[note.id] && (
-            <div className="bg-gray-50 border-l-4 border-green-400 p-2 mt-2 text-sm text-gray-800">
+            <div className="summary-box" role="complementary" aria-label="Note summary">
               <strong>Summary:</strong> {summaries[note.id]}
             </div>
           )}
-        </div>
+        </article>
       ))}
-    </div>
+    </section>
   );
 } 

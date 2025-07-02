@@ -19,25 +19,39 @@ export default function TagFilter({ selectedTag, setSelectedTag }) {
     : notes;
 
   return (
-    <div className="my-4">
-      <div className="flex flex-wrap gap-2 mb-2">
+    <section className="tag-filter" aria-label="Filter notes by tag">
+      <h2 className="sr-only">Filter notes</h2>
+      <div className="tag-filter-buttons" role="tablist" aria-label="Tag filter options">
         <button
-          className={`px-2 py-1 rounded text-xs ${!selectedTag ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          className={`tag-filter-btn ${!selectedTag ? 'active' : ''}`}
           onClick={() => setSelectedTag(null)}
+          role="tab"
+          aria-selected={!selectedTag}
+          aria-controls="notes-list"
         >
-          All
+          All ({notes.length})
         </button>
-        {tags.map(tag => (
-          <button
-            key={tag}
-            className={`px-2 py-1 rounded text-xs ${selectedTag === tag ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-            onClick={() => setSelectedTag(tag)}
-          >
-            {tag}
-          </button>
-        ))}
+        {tags.map(tag => {
+          const tagCount = notes.filter(note => (note.tags || []).includes(tag)).length;
+          return (
+            <button
+              key={tag}
+              className={`tag-filter-btn ${selectedTag === tag ? 'active' : ''}`}
+              onClick={() => setSelectedTag(tag)}
+              role="tab"
+              aria-selected={selectedTag === tag}
+              aria-controls="notes-list"
+            >
+              {tag} ({tagCount})
+            </button>
+          );
+        })}
       </div>
-      {/* Optionally, render filtered notes here or pass selectedTag to NotesList */}
-    </div>
+      {selectedTag && (
+        <div className="text-sm text-gray-600 mb-2" role="status" aria-live="polite">
+          Showing {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} with tag "{selectedTag}"
+        </div>
+      )}
+    </section>
   );
 } 
