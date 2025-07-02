@@ -6,8 +6,5 @@
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
   ],
-  "cleanUrls": true,
-  "static": {
-    "cacheControl": "public, max-age=31536000, immutable"
-  }
+  "cleanUrls": true
 } 
