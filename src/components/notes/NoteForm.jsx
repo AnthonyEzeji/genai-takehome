@@ -134,6 +134,15 @@ export default function NoteForm({ editingNote, onSave }) {
       const aiTitle = await autoTitleNote(content);
       setTitle(aiTitle);
       setRetryCount(0);
+      
+      // Add animation class to title input
+      const titleInput = document.getElementById('title-input');
+      if (titleInput) {
+        titleInput.classList.add('ai-generated');
+        setTimeout(() => {
+          titleInput.classList.remove('ai-generated');
+        }, 600);
+      }
     } catch (err) {
       setAiError('AI error: ' + err.message);
       if (retryAttempt < 2) {
@@ -169,7 +178,7 @@ export default function NoteForm({ editingNote, onSave }) {
 
   return (
     <form onSubmit={handleSubmit} className="note-form" noValidate>
-      <div className="flex gap-2 items-center mb-3">
+      <div className="flex gap-2 items-start mb-3">
         <div className="flex-1">
           <label htmlFor="title-input" className="sr-only">Title</label>
           <input
@@ -179,14 +188,20 @@ export default function NoteForm({ editingNote, onSave }) {
             value={title}
             onChange={e => setTitle(e.target.value)}
             required
-            aria-describedby="title-error"
+            maxLength={100}
+            aria-describedby="title-error title-counter"
             aria-invalid={!title.trim() && title !== ''}
           />
-          {!title.trim() && title !== '' && (
-            <div id="title-error" className="text-red-600 text-xs mt-1">
-              Title is required
+          <div className="flex justify-between items-center mt-1">
+            {!title.trim() && title !== '' && (
+              <div id="title-error" className="text-red-600 text-xs">
+                Title is required
+              </div>
+            )}
+            <div id="title-counter" className="text-xs text-gray-500 ml-auto">
+              {title.length}/100
             </div>
-          )}
+          </div>
         </div>
         <button
           type="button"

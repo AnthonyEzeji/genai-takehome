@@ -46,14 +46,17 @@ export async function generateNoteFromShorthand(shorthand) {
     { role: 'system', content: 'You are a helpful assistant that expands shorthand or bullet points into a full, clear note.' },
     { role: 'user', content: `Expand this shorthand or bullet points into a full note:
 ${shorthand}` },
-  ], { max_tokens: 300 });
+  ], { max_tokens: 100 });
 }
 
 export async function autoTitleNote(content) {
   await logAIUsageToDB('autoTitle');
-  return callOpenAI([
-    { role: 'system', content: 'You are a helpful assistant that generates concise, descriptive titles for notes.' },
-    { role: 'user', content: `Generate a short, descriptive title for this note:
+  const title = await callOpenAI([
+    { role: 'system', content: 'You are a helpful assistant that generates concise, descriptive titles for notes. Keep titles under 50 characters and make them clear and specific.' },
+    { role: 'user', content: `Generate a short, descriptive title for this note (max 50 characters):
 ${content}` },
-  ], { max_tokens: 16 });
+  ], { max_tokens: 16, temperature: 0.3 });
+  
+  // Ensure the title is properly truncated and cleaned
+  return title.length > 50 ? title.substring(0, 47) + '...' : title;
 } 
