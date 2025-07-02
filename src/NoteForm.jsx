@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNotes } from './NotesContext';
+import { autoTitleNote, generateNoteFromShorthand } from './ai';
 
 function TagInput({ tags, setTags }) {
   const [input, setInput] = useState('');
@@ -54,6 +55,9 @@ export default function NoteForm({ editingNote, onSave }) {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [aiLoading, setAiLoading] = useState(null); // 'title' | 'shorthand' | null
+  const [aiError, setAiError] = useState(null);
+  const [shorthand, setShorthand] = useState('');
 
   useEffect(() => {
     if (editingNote) {
@@ -65,6 +69,9 @@ export default function NoteForm({ editingNote, onSave }) {
       setContent('');
       setTags([]);
     }
+    setShorthand('');
+    setAiError(null);
+    setAiLoading(null);
   }, [editingNote]);
 
   async function handleSubmit(e) {
@@ -96,9 +103,35 @@ export default function NoteForm({ editingNote, onSave }) {
     }
   }
 
+  async function handleAutoTitle() {
+    setAiLoading('title');
+    setAiError(null);
+    try {
+      const aiTitle = await autoTitleNote(content);
+      setTitle(aiTitle);
+    } catch (err) {
+      setAiError('AI error: ' + err.message);
+    } finally {
+      setAiLoading(null);
+    }
+  }
+
+  async function handleGenerateFromShorthand() {
+    setAiLoading('shorthand');
+    setAiError(null);
+    try {
+      const aiContent = await generateNoteFromShorthand(shorthand);
+      setContent(aiContent);
+    } catch (err) {
+      setAiError('AI error: ' + err.message);
+    } finally {
+      setAiLoading(null);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded shadow p-4 flex flex-col gap-3 mt-6">
-      <div>
+      <div className="flex gap-2 items-center">
         <input
           className="w-full border rounded px-2 py-1"
           placeholder="Title"
@@ -106,6 +139,14 @@ export default function NoteForm({ editingNote, onSave }) {
           onChange={e => setTitle(e.target.value)}
           required
         />
+        <button
+          type="button"
+          className="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          onClick={handleAutoTitle}
+          disabled={aiLoading === 'title' || !content}
+        >
+          {aiLoading === 'title' ? 'AI...' : 'Auto-Title'}
+        </button>
       </div>
       <div>
         <textarea
@@ -116,7 +157,24 @@ export default function NoteForm({ editingNote, onSave }) {
           required
         />
       </div>
+      <div className="flex gap-2 items-start">
+        <textarea
+          className="w-full border rounded px-2 py-1 min-h-[40px]"
+          placeholder="Shorthand or bullet points (optional)"
+          value={shorthand}
+          onChange={e => setShorthand(e.target.value)}
+        />
+        <button
+          type="button"
+          className="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 mt-1"
+          onClick={handleGenerateFromShorthand}
+          disabled={aiLoading === 'shorthand' || !shorthand}
+        >
+          {aiLoading === 'shorthand' ? 'AI...' : 'Generate from Shorthand'}
+        </button>
+      </div>
       <TagInput tags={tags} setTags={setTags} />
+      {aiError && <div className="text-red-600 text-sm">{aiError}</div>}
       {error && <div className="text-red-600 text-sm">{error}</div>}
       <button
         type="submit"

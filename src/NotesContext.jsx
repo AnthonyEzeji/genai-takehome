@@ -50,4 +50,6 @@ export function NotesProvider({ children }) {
 
 export function useNotes() {
   return useContext(NotesContext);
-} 
+}
+
+export { NotesContext }; 

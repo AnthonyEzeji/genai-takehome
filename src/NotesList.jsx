@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNotes } from './NotesContext';
+import { summarizeNote } from './ai';
 
 export default function NotesList({ selectedTag, onEdit }) {
   const { notes, loading, error, deleteNote } = useNotes();
+  const [summaries, setSummaries] = useState({});
+  const [loadingSummary, setLoadingSummary] = useState(null);
+  const [summaryError, setSummaryError] = useState(null);
 
   const filteredNotes = selectedTag
     ? notes.filter(note => (note.tags || []).includes(selectedTag))
     : notes;
+
+  async function handleSummarize(note) {
+    setLoadingSummary(note.id);
+    setSummaryError(null);
+    try {
+      const summary = await summarizeNote(note.content);
+      setSummaries(s => ({ ...s, [note.id]: summary }));
+    } catch (err) {
+      setSummaryError('AI error: ' + err.message);
+    } finally {
+      setLoadingSummary(null);
+    }
+  }
 
   if (loading) return <div className="p-4">Loading notes...</div>;
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
@@ -38,7 +55,22 @@ export default function NotesList({ selectedTag, onEdit }) {
             >
               Delete
             </button>
+            <button
+              className="text-xs text-green-600 hover:underline"
+              onClick={() => handleSummarize(note)}
+              disabled={loadingSummary === note.id}
+            >
+              {loadingSummary === note.id ? 'Summarizing...' : 'Summarize'}
+            </button>
           </div>
+          {summaryError && loadingSummary === note.id && (
+            <div className="text-red-600 text-xs mt-1">{summaryError}</div>
+          )}
+          {summaries[note.id] && (
+            <div className="bg-gray-50 border-l-4 border-green-400 p-2 mt-2 text-sm text-gray-800">
+              <strong>Summary:</strong> {summaries[note.id]}
+            </div>
+          )}
         </div>
       ))}
     </div>
