@@ -242,7 +242,7 @@ This project is licensed under the MIT License.
 
 ## 🎥 Demo Video
 
-**[Demo Video URL]** - *Add your Loom/screen share video link here*
+Watch a walkthrough of the application here: [Loom Video](https://www.loom.com/share/b9f96bf7df814de5ad3343c2026bd2db?sid=22ecf047-b4dd-4045-9e5b-659cc99a00ed)
 
 **Note**: Demo video should showcase:
 - End-user product demo (create/edit/delete notes)
