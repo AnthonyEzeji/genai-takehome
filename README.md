@@ -4,7 +4,7 @@ A modern, AI-augmented note-taking application built with React, Vite, and Supab
 
 ## 🚀 Live Demo
 
-**[https://genai-takehome-ize6.vercel.app/](https://genai-takehome-ize6.vercel.app/)** - Live application deployed on Vercel
+**[https://genai-takehome.vercel.app/](https://genai-takehome.vercel.app/)** - Live application deployed on Vercel
 
 ## ✨ Features
 
