@@ -29,12 +29,15 @@ src/
 │   ├── notes/                 # Note-related components
 │   │   ├── NoteForm.jsx       # Note creation and editing form
 │   │   ├── NotesList.jsx      # Display and management of notes
-│   │   └── TagFilter.jsx      # Tag-based filtering and search
+│   │   ├── TagFilter.jsx      # Tag-based filtering and search
+│   │   ├── RelatedNotes.jsx   # Vector-based related notes display
+│   │   └── SemanticSearch.jsx # Semantic search interface
 │   └── ui/                    # Generic UI components (future use)
 ├── contexts/                  # React Context providers
 │   └── NotesContext.jsx       # Global state management for notes
 ├── services/                  # External service integrations
 │   ├── ai.js                  # AI service functions and error handling
+│   ├── embeddings.js          # Vector embeddings and similarity search
 │   └── supabaseClient.js      # Supabase configuration and client
 ├── styles/                    # Styling files
 │   ├── App.css                # Custom component styles and animations
@@ -55,6 +58,8 @@ App
 ├── Notes Page
 │   ├── components/notes/NoteForm
 │   ├── components/notes/TagFilter
+│   ├── components/notes/SemanticSearch
+│   ├── components/notes/RelatedNotes
 │   └── components/notes/NotesList
 │       └── NoteCard (individual notes)
 └── Analytics Page
@@ -76,6 +81,9 @@ The application follows a modular architecture with clear separation of concerns
 - **contexts/**: React Context providers for global state management
 
 - **services/**: External service integrations and API calls
+  - `ai.js`: OpenAI API integration for text generation
+  - `embeddings.js`: Vector embeddings and similarity search
+  - `supabaseClient.js`: Database and real-time subscriptions
 
 - **styles/**: CSS and styling files
 
@@ -165,6 +173,7 @@ notes (
   title TEXT NOT NULL,
   content TEXT,
   tags TEXT[],
+  embedding vector(1536), -- OpenAI text-embedding-ada-002 vectors
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 )
@@ -172,15 +181,36 @@ notes (
 -- AI usage tracking
 ai_usage (
   id UUID PRIMARY KEY,
-  feature TEXT NOT NULL, -- 'summarize', 'generate', 'title'
+  feature TEXT NOT NULL, -- 'summarize', 'generate', 'title', 'embedding'
   note_id UUID REFERENCES notes(id),
   created_at TIMESTAMP DEFAULT NOW()
+)
+```
+
+### Vector Search Functions
+
+```sql
+-- Similarity search function
+CREATE OR REPLACE FUNCTION match_notes(
+  query_embedding vector(1536),
+  match_threshold float DEFAULT 0.7,
+  match_count int DEFAULT 5,
+  exclude_id uuid DEFAULT NULL
+)
+RETURNS TABLE (
+  id uuid,
+  title text,
+  content text,
+  tags text[],
+  created_at timestamp with time zone,
+  similarity float
 )
 ```
 
 ### Indexes
 - `notes(created_at)` for time-based queries
 - `notes(tags)` for tag filtering
+- `notes(embedding)` for vector similarity search (IVFFlat index)
 - `ai_usage(feature, created_at)` for analytics
 
 ## AI Integration Architecture
@@ -191,6 +221,13 @@ ai_usage (
 - generateTitle(content)
 - summarizeNote(content)
 - generateFromShorthand(shorthand)
+
+// embeddings.js - Vector embeddings service
+- generateEmbedding(text)
+- storeNoteWithEmbedding(note)
+- findRelatedNotes(noteId, limit)
+- updateNoteEmbedding(noteId, title, content)
+- searchNotesBySimilarity(query, limit)
 ```
 
 ### Error Handling
@@ -308,7 +345,7 @@ ai_usage (
    ```
 
 2. **Advanced AI Features**
-   - Vector embeddings for semantic search
+   - ✅ Vector embeddings for semantic search (implemented)
    - Machine learning for note recommendations
    - Natural language processing for auto-tagging
 
