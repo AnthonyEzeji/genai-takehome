@@ -18,7 +18,7 @@ const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
 const demoNotes = [
   {
-    title: 'Welcome to GenAI Notes!',
+          title: 'Welcome to GenAI Notes!',
     content: 'This is a demo note. You can edit or delete it, or create your own.',
     tags: ['demo', 'welcome'],
     created_at: new Date().toISOString(),

@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 GenAI Notes. All rights reserved.</p>
+                      <p>&copy; 2025 GenAI Notes. All rights reserved.</p>
           <div className="footer-links">
             <Link to="/privacy">Privacy Policy</Link>
             <Link to="/terms">Terms of Service</Link>

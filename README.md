@@ -290,6 +290,102 @@ This project is licensed under the MIT License.
 
 For questions or feedback about this project, please reach out through the repository issues or contact the development team.
 
+## End-to-End (E2E) Testing
+
+This project uses [Cypress](https://www.cypress.io/) for comprehensive end-to-end testing.
+
+### Running E2E Tests
+
+- To open the Cypress test runner:
+  ```bash
+  npm run cy:open
+  ```
+- To run all E2E tests in headless mode:
+  ```bash
+  npm run cy:run
+  ```
+
+### E2E Test Coverage
+
+The E2E test suite includes **8 comprehensive test files** with **50+ test scenarios**:
+
+#### 1. **Smoke Tests** (`smoke.cy.js`)
+- Basic application loading and navigation
+- Core functionality verification
+- Cross-page navigation testing
+
+#### 2. **Navigation Tests** (`navigation.cy.js`)
+- Route navigation and URL handling
+- Active navigation state management
+- Direct URL access and error handling
+- Navigation state persistence
+
+#### 3. **Note Creation & Management** (`note-creation.cy.js`)
+- Basic note creation with title and content
+- Tag management and validation
+- Note editing and deletion
+- Multiple notes handling
+- Input validation and edge cases
+- Special character handling
+
+#### 4. **AI Features** (`ai-features.cy.js`)
+- Auto-title generation from content
+- Content generation from shorthand
+- Semantic search functionality
+- AI integration workflows
+- Error handling for AI services
+- Loading states and user feedback
+
+#### 5. **Tag Filtering** (`tag-filtering.cy.js`)
+- Tag-based note filtering
+- Multiple tag selection
+- Tag count display and updates
+- Filter state management
+- Dynamic filtering with CRUD operations
+
+#### 6. **Analytics Dashboard** (`analytics.cy.js`)
+- Dashboard loading and display
+- Statistics and chart rendering
+- Data updates from note operations
+- Responsive layout testing
+- Empty state handling
+
+#### 7. **Error Handling** (`error-handling.cy.js`)
+- Network error scenarios
+- API error responses
+- Input validation errors
+- UI error states and recovery
+- Retry mechanisms
+- Edge case handling
+
+#### 8. **Accessibility** (`accessibility.cy.js`)
+- Keyboard navigation support
+- Screen reader compatibility
+- ARIA labels and landmarks
+- Color contrast and focus indicators
+- Mobile accessibility
+- Semantic HTML structure
+
+### Test Configuration
+
+- **Base URL**: `http://localhost:5174` (Vite dev server)
+- **Viewport**: 1280x720 (configurable)
+- **Browser**: Electron (headless) for CI/CD
+- **Screenshots**: Enabled on test failures
+- **Videos**: Disabled for faster execution
+
+### Test Data Management
+
+Tests create and clean up their own test data to ensure isolation. Each test file includes proper setup and teardown procedures.
+
+### Continuous Integration
+
+The E2E tests are designed to run in CI/CD pipelines and include:
+- Network error simulation
+- API mocking for external services
+- Responsive design testing
+- Cross-browser compatibility checks
+
 ---
 
 **Built with ❤️ using modern web technologies**

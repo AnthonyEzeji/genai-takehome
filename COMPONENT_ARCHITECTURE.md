@@ -711,6 +711,275 @@ const results = await searchNotes(query)
 await createNote(noteData)
 ```
 
+## 🧪 Testing Architecture & Strategy
+
+### Comprehensive Testing Pyramid
+
+The application implements a robust three-layer testing strategy:
+
+#### 1. Unit Tests (Foundation Layer)
+**Purpose**: Test individual components and functions in isolation
+
+**Test Files & Coverage**:
+- `App.test.jsx` - Main application routing and navigation
+- `NoteForm.test.jsx` - Form validation, AI integration, error handling
+- `NotesList.test.jsx` - Note display, CRUD operations, filtering
+- `SemanticSearch.test.jsx` - Vector search functionality and edge cases
+- `ai.test.js` - AI service integration and error scenarios
+- `TestCopy.test.js` - Utility functions and helpers
+
+**Key Testing Patterns**:
+```jsx
+// Component Testing with React Testing Library
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { NotesProvider } from '../contexts/NotesContext'
+
+describe('NoteForm', () => {
+  it('should create a note with AI-generated title', async () => {
+    render(
+      <NotesProvider>
+        <NoteForm />
+      </NotesProvider>
+    )
+    
+    fireEvent.change(screen.getByPlaceholder('Enter note content'), {
+      target: { value: 'Meeting notes about project timeline' }
+    })
+    fireEvent.click(screen.getByText('Auto-Title'))
+    
+    await waitFor(() => {
+      expect(screen.getByPlaceholder('Enter note title')).toHaveValue()
+    })
+  })
+})
+```
+
+#### 2. Integration Tests (Middle Layer)
+**Purpose**: Test component interactions and data flow
+
+**Test Scenarios**:
+- Context provider integration
+- Service layer interactions
+- Component communication patterns
+- State management flows
+- Error handling across components
+
+**Integration Test Example**:
+```jsx
+describe('Notes Integration', () => {
+  it('should update all components when note is created', async () => {
+    render(
+      <NotesProvider>
+        <NotesPage />
+      </NotesProvider>
+    )
+    
+    // Create note
+    fireEvent.change(screen.getByPlaceholder('Enter note title'), {
+      target: { value: 'Test Note' }
+    })
+    fireEvent.click(screen.getByText('Add Note'))
+    
+    // Verify note appears in list
+    expect(screen.getByText('Test Note')).toBeInTheDocument()
+    
+    // Verify tag filter updates
+    expect(screen.getByText('test')).toBeInTheDocument()
+  })
+})
+```
+
+#### 3. End-to-End Tests (Top Layer)
+**Purpose**: Test complete user journeys in real browser environment
+
+**E2E Test Suite Structure**:
+```
+cypress/e2e/
+├── smoke.cy.js              # Basic functionality verification
+├── navigation.cy.js          # Route handling and navigation
+├── note-creation.cy.js       # CRUD operations and validation
+├── ai-features.cy.js         # AI integration and workflows
+├── tag-filtering.cy.js       # Dynamic filtering and state
+├── analytics.cy.js           # Data visualization and updates
+├── error-handling.cy.js      # Network errors and recovery
+└── accessibility.cy.js       # WCAG compliance and usability
+```
+
+**E2E Test Example**:
+```javascript
+describe('AI Features', () => {
+  it('should complete full AI-assisted note creation workflow', () => {
+    cy.visit('/notes')
+    
+    // Generate content from shorthand
+    cy.get('[placeholder="Enter bullet points or shorthand to generate content"]')
+      .type('Weekly team meeting:\n- Discussed project progress\n- Planned next sprint')
+    cy.contains('Generate').click()
+    
+    // Wait for content generation
+    cy.get('[placeholder="Enter note content"]', { timeout: 15000 })
+      .should('not.have.value', '')
+    
+    // Generate title from content
+    cy.contains('Auto-Title').click()
+    cy.get('[placeholder="Enter note title"]', { timeout: 15000 })
+      .should('not.have.value', '')
+    
+    // Save the note
+    cy.contains('Add Note').click()
+    cy.get('[placeholder="Enter note title"]').should('have.value', '')
+  })
+})
+```
+
+### Test Configuration & Setup
+
+#### Unit Testing (Vitest)
+```javascript
+// vitest.config.js
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.js'],
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'dist/']
+    }
+  }
+})
+
+// vitest.setup.js
+import '@testing-library/jest-dom'
+import { vi } from 'vitest'
+
+// Mock external services
+vi.mock('../services/supabaseClient', () => ({
+  supabase: {
+    from: () => ({
+      select: () => ({ data: [], error: null }),
+      insert: () => ({ data: [], error: null }),
+      update: () => ({ data: [], error: null }),
+      delete: () => ({ data: [], error: null })
+    })
+  }
+}))
+
+vi.mock('../services/ai', () => ({
+  autoTitleNote: vi.fn().mockResolvedValue('AI Generated Title'),
+  generateNoteFromShorthand: vi.fn().mockResolvedValue('AI Generated Content')
+}))
+```
+
+#### E2E Testing (Cypress)
+```javascript
+// cypress.config.js
+export default defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:5174',
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    video: false,
+    screenshotOnRunFailure: true,
+    setupNodeEvents(on, config) {
+      // Custom event handlers for test orchestration
+    }
+  }
+})
+```
+
+### Testing Best Practices
+
+#### Component Testing
+- **Isolation**: Test components in isolation with mocked dependencies
+- **User Behavior**: Test from user perspective, not implementation details
+- **Accessibility**: Include accessibility testing in component tests
+- **Error Scenarios**: Test error states and edge cases
+- **Async Operations**: Properly handle async operations with `waitFor`
+
+#### E2E Testing
+- **Real User Flows**: Test complete user journeys
+- **Cross-Browser**: Test across multiple browsers
+- **Mobile Testing**: Include mobile viewport testing
+- **Performance**: Monitor loading times and responsiveness
+- **Network Conditions**: Test with different network conditions
+
+#### Test Data Management
+- **Isolation**: Each test creates its own test data
+- **Cleanup**: Proper cleanup after each test
+- **Consistency**: Use consistent test data across tests
+- **Realistic Data**: Use realistic data that matches production
+
+### Error Handling Testing
+
+#### Network Error Scenarios
+```javascript
+// Mock network failures
+cy.intercept('POST', '**/openai/**', { forceNetworkError: true }).as('aiError')
+
+// Test error recovery
+cy.contains('Auto-Title').click()
+cy.contains('Error', { timeout: 10000 }).should('be.visible')
+cy.contains('Retry').click()
+```
+
+#### API Error Responses
+```javascript
+// Mock API errors
+cy.intercept('POST', '**/openai/**', { 
+  statusCode: 429, 
+  body: { error: { message: 'Rate limit exceeded' } } 
+}).as('rateLimitError')
+```
+
+#### Input Validation
+```javascript
+// Test form validation
+cy.get('[placeholder="Enter note content"]').type('Content without title')
+cy.contains('Add Note').should('be.disabled')
+```
+
+### Performance Testing
+
+#### Loading State Testing
+```javascript
+// Test loading states during AI operations
+cy.get('[placeholder="Enter note content"]').type('Test content')
+cy.contains('Auto-Title').click()
+cy.contains('Generating...').should('be.visible')
+```
+
+#### Response Time Validation
+```javascript
+// Monitor API response times
+cy.intercept('POST', '**/openai/**', (req) => {
+  req.reply({
+    delay: 2000,
+    statusCode: 200,
+    body: { choices: [{ message: { content: 'Generated Title' } }] }
+  })
+}).as('slowAI')
+```
+
+### Accessibility Testing
+
+#### Keyboard Navigation
+```javascript
+// Test keyboard accessibility
+cy.get('body').tab()
+cy.focused().should('exist')
+cy.get('body').type('{enter}')
+```
+
+#### Screen Reader Support
+```javascript
+// Test ARIA labels and landmarks
+cy.get('[placeholder="Enter note title"]').should('have.attr', 'aria-label')
+cy.get('nav').should('exist')
+cy.get('main').should('exist')
+```
+
 ## 🔧 Debugging & Troubleshooting
 
 ### Common Issues & Solutions
@@ -735,12 +1004,19 @@ await createNote(noteData)
    - Verify proper use of React.memo and useCallback
    - Review state management patterns
 
+5. **Test Environment Issues**
+   - Verify all mocks are properly configured
+   - Check test data isolation and cleanup
+   - Ensure consistent test environment setup
+
 ### Debug Tools
 
 1. **SearchDebugger Component**: Analyze search performance
 2. **Browser DevTools**: Monitor network requests and state changes
 3. **React DevTools**: Inspect component hierarchy and props
 4. **Console Logging**: Track data flow and function calls
+5. **Cypress Test Runner**: Interactive E2E test debugging
+6. **Vitest UI**: Interactive unit test debugging and coverage analysis
 
 ## 🚀 Extension Points
 
