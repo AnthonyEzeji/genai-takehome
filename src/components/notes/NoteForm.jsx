@@ -165,7 +165,7 @@ export default function NoteForm({ editingNote, onSave }) {
     }
   }
 
-  const isFormValid = title.trim() && content.trim();
+  const isFormValid = title.trim() && content.trim() && tags.length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="note-form" noValidate>
@@ -291,7 +291,7 @@ export default function NoteForm({ editingNote, onSave }) {
       
       {!isFormValid && (
         <div id="form-validation" className="text-red-600 text-xs mt-1">
-          Please fill in both title and content
+          Please fill in title, content, and at least one tag
         </div>
       )}
     </form>

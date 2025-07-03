@@ -754,3 +754,7 @@ const config = {
 ---
 
 **Built with modern web technologies and AI-powered intelligence** 
+
+## Recent Testing & Validation Changes
+
+- NoteForm now only shows a single general validation warning for missing title, content, or tags. The tag-specific warning has been removed. All E2E and unit tests have been updated accordingly. 
