@@ -25,11 +25,11 @@ function TagInput({ tags, setTags }) {
   }
 
   return (
-    <div>
-      <label htmlFor="tag-input" className="block text-sm font-medium text-gray-700 mb-2">
+    <div className="form-group">
+      <label htmlFor="tag-input" className="form-label">
         Tags
       </label>
-      <div className="flex flex-wrap gap-2 mb-2" role="list" aria-label="Selected tags">
+      <div className="tags-container" role="list" aria-label="Selected tags">
         {tags.map(tag => (
           <span key={tag} className="tag" role="listitem">
             {tag}
@@ -44,10 +44,10 @@ function TagInput({ tags, setTags }) {
           </span>
         ))}
       </div>
-      <div className="flex gap-2">
+      <div className="input-button-container">
         <input
           id="tag-input"
-          className="border rounded px-2 py-1 flex-1"
+          className="form-input"
           placeholder="Add tag"
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -56,7 +56,7 @@ function TagInput({ tags, setTags }) {
         />
         <button 
           type="button" 
-          className="btn btn-secondary" 
+          className="btn btn-secondary btn-lg" 
           onClick={addTag}
           disabled={!input.trim()}
         >
@@ -134,15 +134,6 @@ export default function NoteForm({ editingNote, onSave }) {
       const aiTitle = await autoTitleNote(content);
       setTitle(aiTitle);
       setRetryCount(0);
-      
-      // Add animation class to title input
-      const titleInput = document.getElementById('title-input');
-      if (titleInput) {
-        titleInput.classList.add('ai-generated');
-        setTimeout(() => {
-          titleInput.classList.remove('ai-generated');
-        }, 600);
-      }
     } catch (err) {
       setAiError('AI error: ' + err.message);
       if (retryAttempt < 2) {
@@ -178,13 +169,13 @@ export default function NoteForm({ editingNote, onSave }) {
 
   return (
     <form onSubmit={handleSubmit} className="note-form" noValidate>
-      <div className="flex gap-2 items-start mb-3">
-        <div className="flex-1">
-          <label htmlFor="title-input" className="sr-only">Title</label>
+      <div className="form-group">
+        <label htmlFor="title-input" className="form-label">Title</label>
+        <div className="input-button-container">
           <input
             id="title-input"
-            className="w-full border rounded px-2 py-1"
-            placeholder="Title"
+            className="form-input"
+            placeholder="Enter note title"
             value={title}
             onChange={e => setTitle(e.target.value)}
             required
@@ -192,37 +183,34 @@ export default function NoteForm({ editingNote, onSave }) {
             aria-describedby="title-error title-counter"
             aria-invalid={!title.trim() && title !== ''}
           />
-          <div className="flex justify-between items-center mt-1">
-            {!title.trim() && title !== '' && (
-              <div id="title-error" className="text-red-600 text-xs">
-                Title is required
-              </div>
-            )}
-            <div id="title-counter" className="text-xs text-gray-500 ml-auto">
-              {title.length}/100
+          <button
+            type="button"
+            className="btn btn-secondary btn-lg"
+            onClick={() => handleAutoTitle()}
+            disabled={aiLoading === 'title' || !content.trim()}
+            aria-label="Generate title using AI"
+          >
+            {aiLoading === 'title' ? 'Generating...' : 'Auto-Title'}
+          </button>
+        </div>
+        <div className="flex justify-between items-center mt-1">
+          {!title.trim() && title !== '' && (
+            <div id="title-error" className="text-red-600 text-xs">
+              Title is required
             </div>
+          )}
+          <div id="title-counter" className="text-xs text-gray-500 ml-auto">
+            {title.length}/100
           </div>
         </div>
-        <button
-          type="button"
-          className="btn btn-ai"
-          onClick={() => handleAutoTitle()}
-          disabled={aiLoading === 'title' || !content.trim()}
-          aria-label="Generate title using AI"
-        >
-          {aiLoading === 'title' ? (
-            <span className="loading" aria-label="Generating title..."></span>
-          ) : (
-            'Auto-Title'
-          )}
-        </button>
       </div>
-      <div className="mb-3">
-        <label htmlFor="content-input" className="sr-only">Content</label>
+
+      <div className="form-group">
+        <label htmlFor="content-input" className="form-label">Content</label>
         <textarea
           id="content-input"
-          className="w-full border rounded px-2 py-1 min-h-[80px]"
-          placeholder="Content"
+          className="form-textarea"
+          placeholder="Enter note content"
           value={content}
           onChange={e => setContent(e.target.value)}
           required
@@ -235,43 +223,45 @@ export default function NoteForm({ editingNote, onSave }) {
           </div>
         )}
       </div>
-      <div className="flex gap-2 items-start mb-3">
-        <div className="flex-1">
-          <label htmlFor="shorthand-input" className="sr-only">Shorthand</label>
+
+      <div className="form-group shorthand-group">
+        <label htmlFor="shorthand-input" className="form-label">Shorthand</label>
+        <div className="input-button-container">
           <textarea
             id="shorthand-input"
-            className="w-full border rounded px-2 py-1 min-h-[40px]"
-            placeholder="Shorthand or bullet points (optional)"
+            className="form-textarea"
+            placeholder="Enter bullet points or shorthand to generate content"
             value={shorthand}
             onChange={e => setShorthand(e.target.value)}
             aria-describedby="shorthand-help"
           />
-          <p id="shorthand-help" className="text-xs text-gray-500 mt-1">
-            Enter bullet points or shorthand to generate content
-          </p>
+          <button
+            type="button"
+            className="btn btn-secondary btn-lg"
+            onClick={() => handleGenerateFromShorthand()}
+            disabled={aiLoading === 'shorthand' || !shorthand.trim()}
+            aria-label="Generate content from shorthand using AI"
+          >
+            {aiLoading === 'shorthand' ? 'Generating...' : 'Generate'}
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn btn-ai"
-          onClick={() => handleGenerateFromShorthand()}
-          disabled={aiLoading === 'shorthand' || !shorthand.trim()}
-          aria-label="Generate content from shorthand using AI"
-        >
-          {aiLoading === 'shorthand' ? (
-            <span className="loading" aria-label="Generating content..."></span>
-          ) : (
-            'Generate from Shorthand'
-          )}
-        </button>
+        <p id="shorthand-help" className="text-xs text-gray-500 mt-1">
+          Enter bullet points or shorthand to generate content
+        </p>
       </div>
-      <TagInput tags={tags} setTags={setTags} />
+
+      <div className="mt-6">
+        <TagInput tags={tags} setTags={setTags} />
+      </div>
+      
       {error && (
-        <div className="text-red-600 text-sm mt-2 p-2 bg-red-50 rounded border border-red-200" role="alert">
+        <div className="p-4 bg-red-50 rounded border border-red-200" role="alert">
           <strong>Error:</strong> {error}
         </div>
       )}
+      
       {aiError && (
-        <div className="text-red-600 text-sm mt-2 p-2 bg-red-50 rounded border border-red-200" role="alert">
+        <div className="p-4 bg-red-50 rounded border border-red-200" role="alert">
           <strong>AI Error:</strong> {aiError}
           {retryCount < 2 && (
             <button 
@@ -280,27 +270,25 @@ export default function NoteForm({ editingNote, onSave }) {
                 if (aiLoading === 'title') handleAutoTitle();
                 if (aiLoading === 'shorthand') handleGenerateFromShorthand();
               }}
-              className="btn btn-secondary ml-2 text-xs"
+              className="btn btn-secondary ml-2"
             >
               Retry
             </button>
           )}
         </div>
       )}
+      
       <div className="flex justify-end mt-4">
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary btn-lg"
           disabled={loading || !isFormValid}
           aria-describedby={!isFormValid ? "form-validation" : undefined}
         >
-          {loading ? (
-            <span className="loading" aria-label="Saving note..."></span>
-          ) : (
-            editingNote ? 'Update Note' : 'Add Note'
-          )}
+          {loading ? 'Saving...' : (editingNote ? 'Update Note' : 'Add Note')}
         </button>
       </div>
+      
       {!isFormValid && (
         <div id="form-validation" className="text-red-600 text-xs mt-1">
           Please fill in both title and content

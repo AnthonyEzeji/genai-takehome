@@ -19,11 +19,11 @@ export default function TagFilter({ selectedTag, setSelectedTag }) {
     : notes;
 
   return (
-    <section className="tag-filter" aria-label="Filter notes by tag">
+    <div className="tag-filter-container" aria-label="Filter notes by tag">
       <h2 className="sr-only">Filter notes</h2>
-      <div className="tag-filter-buttons" role="tablist" aria-label="Tag filter options">
+      <div className="tags-container" role="tablist" aria-label="Tag filter options">
         <button
-          className={`tag-filter-btn ${!selectedTag ? 'active' : ''}`}
+          className={`tag ${!selectedTag ? 'active' : ''}`}
           onClick={() => setSelectedTag(null)}
           role="tab"
           aria-selected={!selectedTag}
@@ -36,7 +36,7 @@ export default function TagFilter({ selectedTag, setSelectedTag }) {
           return (
             <button
               key={tag}
-              className={`tag-filter-btn ${selectedTag === tag ? 'active' : ''}`}
+              className={`tag ${selectedTag === tag ? 'active' : ''}`}
               onClick={() => setSelectedTag(tag)}
               role="tab"
               aria-selected={selectedTag === tag}
@@ -52,6 +52,6 @@ export default function TagFilter({ selectedTag, setSelectedTag }) {
           Showing {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} with tag "{selectedTag}"
         </div>
       )}
-    </section>
+    </div>
   );
 } 

@@ -42,32 +42,28 @@ export default function SemanticSearch({ onNoteSelect }) {
       </h3>
       
       <form onSubmit={handleSearch} className="mb-4">
-        <div className="flex gap-2">
+        <div className="input-button-container">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search notes by meaning..."
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="form-input"
             aria-label="Search notes semantically"
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="btn btn-primary px-4 py-2 disabled:opacity-50"
+            className="btn btn-primary"
             aria-label="Search notes"
           >
-            {loading ? (
-              <span className="loading" aria-label="Searching..."></span>
-            ) : (
-              'Search'
-            )}
+            {loading ? 'Searching...' : 'Search'}
           </button>
           {hasSearched && (
             <button
               type="button"
               onClick={clearSearch}
-              className="btn btn-secondary px-4 py-2"
+              className="btn btn-secondary"
               aria-label="Clear search"
             >
               Clear

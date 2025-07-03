@@ -18,12 +18,22 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 function getLastNDates(n) {
   const arr = [];
   const today = new Date();
+  
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    arr.push(d.toISOString().split('T')[0]);
+    // Use local date string to avoid timezone issues
+    const dateString = d.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    arr.push(dateString);
   }
   return arr;
+}
+
+// Helper function to get local date from timestamp
+function getLocalDateFromTimestamp(timestamp) {
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
 }
 
 // Custom hook to fetch AI usage from database
@@ -73,8 +83,11 @@ export default function AnalyticsDashboard() {
 
   // Notes created per day (last 7 days) - real-time from DB notes
   const last7 = getLastNDates(7);
-  const notesPerDay = last7.map(d =>
-    notes.filter(note => (note.created_at || '').slice(0, 10) === d).length
+  const notesPerDay = last7.map(date =>
+    notes.filter(note => {
+      const noteDate = getLocalDateFromTimestamp(note.created_at);
+      return noteDate === date;
+    }).length
   );
 
   // AI feature usage - real-time from DB
@@ -93,11 +106,17 @@ export default function AnalyticsDashboard() {
   const tagData = tagEntries.map(([, count]) => count);
 
   return (
-    <main className="analytics-dashboard fade-in-up" role="main">
-      <h1 className="page-title">Analytics Dashboard</h1>
+    <div className="main-content">
+      <div className="app-header">
+        <h1 className="app-title">Analytics Dashboard</h1>
+        <p className="app-subtitle">Track your note-taking patterns and AI usage</p>
+      </div>
       
-      <section className="analytics-section" aria-labelledby="notes-chart-title">
-        <h2 id="notes-chart-title">Notes Created (Last 7 Days)</h2>
+      <div className="content-section" aria-labelledby="notes-chart-title">
+        <div className="section-header">
+          <h2 id="notes-chart-title" className="section-title">Notes Created (Last 7 Days)</h2>
+          <p className="section-description">Daily note creation activity</p>
+        </div>
         <div role="img" aria-label={`Bar chart showing notes created per day. Data: ${last7.map((date, i) => `${date}: ${notesPerDay[i]} notes`).join(', ')}`}>
           <Bar
             data={{
@@ -148,17 +167,20 @@ export default function AnalyticsDashboard() {
             }}
           />
         </div>
-      </section>
+      </div>
       
-      <section className="analytics-section" aria-labelledby="ai-usage-title">
-        <h2 id="ai-usage-title">AI Feature Usage</h2>
+      <div className="content-section" aria-labelledby="ai-usage-title">
+        <div className="section-header">
+          <h2 id="ai-usage-title" className="section-title">AI Feature Usage</h2>
+          <p className="section-description">How often you use AI features</p>
+        </div>
         {aiLoading ? (
-          <div className="text-center py-8" role="status" aria-live="polite">
-            <div className="loading mx-auto" aria-label="Loading AI usage data"></div>
-            <p className="text-gray-600 mt-2">Loading AI usage data...</p>
+          <div className="loading" role="status" aria-live="polite">
+            <div className="spinner" aria-label="Loading AI usage data"></div>
+            <p className="mt-2">Loading AI usage data...</p>
           </div>
         ) : aiError ? (
-          <div className="text-red-600 p-4 bg-red-50 rounded border border-red-200" role="alert">
+          <div className="p-4 bg-red-50 rounded border border-red-200" role="alert">
             <strong>Error:</strong> {aiError}
             <button 
               onClick={() => window.location.reload()} 
@@ -216,10 +238,13 @@ export default function AnalyticsDashboard() {
             />
           </div>
         )}
-      </section>
+      </div>
       
-      <section className="analytics-section" aria-labelledby="tag-popularity-title">
-        <h2 id="tag-popularity-title">Tag Popularity (Top 10)</h2>
+      <div className="content-section" aria-labelledby="tag-popularity-title">
+        <div className="section-header">
+          <h2 id="tag-popularity-title" className="section-title">Tag Popularity (Top 10)</h2>
+          <p className="section-description">Most frequently used tags</p>
+        </div>
         {tagLabels.length > 0 ? (
           <>
             <div role="img" aria-label={`Bar chart showing tag popularity. Data: ${tagLabels.map((tag, i) => `${tag}: ${tagData[i]} notes`).join(', ')}`}>
@@ -272,22 +297,22 @@ export default function AnalyticsDashboard() {
                 }}
               />
             </div>
-            <ul className="flex flex-wrap gap-2 mt-4" aria-label="Tag labels" role="list">
+            <div className="tags-container mt-4" aria-label="Tag labels" role="list">
               {tagLabels.map(tag => (
-                <li key={tag} className="tag" role="listitem">
+                <span key={tag} className="tag" role="listitem">
                   {tag}
-                </li>
+                </span>
               ))}
-            </ul>
+            </div>
           </>
         ) : (
-          <div className="text-center py-8 text-gray-500" role="status">
-            <div className="text-4xl mb-2" aria-hidden="true">📊</div>
+          <div className="empty-state" role="status">
+            <div className="empty-state-icon" aria-hidden="true">📊</div>
             <p>No tag data available</p>
             <p className="text-sm">Create notes with tags to see analytics!</p>
           </div>
         )}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 } 

@@ -43,10 +43,10 @@ ${content}` },
 export async function generateNoteFromShorthand(shorthand) {
   await logAIUsageToDB('generate');
   return callOpenAI([
-    { role: 'system', content: 'You are a helpful assistant that expands shorthand or bullet points into a full, clear note.' },
+    { role: 'system', content: 'You are a helpful assistant that expands shorthand or bullet points into a full, clear note. Provide comprehensive, well-structured content that fully expands on the given points.' },
     { role: 'user', content: `Expand this shorthand or bullet points into a full note:
 ${shorthand}` },
-  ], { max_tokens: 100 });
+  ], { max_tokens: 1000 });
 }
 
 export async function autoTitleNote(content) {
