@@ -389,3 +389,12 @@ The E2E tests are designed to run in CI/CD pipelines and include:
 ---
 
 **Built with ❤️ using modern web technologies**
+
+## Manually Tested Browsers
+
+- Google Chrome
+- Safari
+
+## Manually Tested Devices
+
+- Multiple phone models (tested using browser developer tools device emulation)
